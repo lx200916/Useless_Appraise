@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://cdn.bootcss.com/vue/2.6.10/vue.js"></script>
+    <script src="https://cdn.bootcss.com/axios/0.19.0-beta.1/axios.min.js"></script>
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <!-- 引入组件库 -->
+    <script src="https://cdn.bootcss.com/element-ui/2.12.0/index.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/vue-ydui/dist/ydui.rem.css">
+    <script src="https://unpkg.com/vue-ydui/dist/ydui.flexible.js"></script>
+    <script src="https://unpkg.com/vue-ydui/dist/ydui.rem.js"></script>
+
+
+</head>
+
+<body>
+
+<div id="app">
+
+ <el-card class="box-card">
+        <div slot="header" class="clearfix">
+           <span>学生评分</span>
+            <el-button style="float: right; padding: 3px 0" type="text" @click="submit">提交</el-button>
+        </div>
+         <yd-flexbox direction="vertical" v-for="da in data">
+            <el-divider>{{da.number}} {{da.name}}</el-divider>
+
+
+              <el-rate
+                    v-model="da.value"
+                    show-text :max="4" :texts="['D','C','B','A']" @change="da.dot=false">
+            </el-rate><el-badge is-dot class="item" style="float: right; padding: 3px 0" v-show="da.dot"></el-badge>
+
+        </yd-flexbox>
+
+     <el-button type="success" icon="el-icon-check" style="float: right; bottom: 4px" circle  @click="submit"></el-button>
+    </el-card>
+
+</div>
+<script>
+    new Vue({
+        created: function () {
+            if(localStorage.value){
+                this.data=JSON.parse(localStorage.value)
+            }else{
+            axios
+                .get('/get')
+                .then(response => (this.data = response.data))
+        }},
+        el:'#app',
+        data: function() {
+            return { data:[{name:'li',number:'23',value:0}]}
+        },methods:{
+
+            submit(){
+                if(localStorage.sus==1){
+                    this.$message({
+                        message: '提交过了',
+                        type: 'warning'
+                    });
+                    return
+                }
+                this.data.forEach(item => {
+                    if(item.value==0){
+                        if(item.dot=false){this.$message({
+                            message: '请检查是否漏填',
+                            type: 'warning'
+                        });}
+
+                        item.dot=true
+                    return}
+                })
+
+
+                axios
+                    .post('/post',data=this.data).then(res=>{if(res.data.code==0){
+                    localStorage.sus = 1;
+                    localStorage.value=JSON.stringify(this.data)
+                    this.$message({
+                        message: '提交成功',
+                        type: 'success'
+                    });
+                }
+                    else{
+                    this.$message({
+                        message: res.data.mes,
+                        type: 'warning'
+                    });
+                }
+            })
+
+        }
+    }})
+</script>
+</body>
+
+</html>
