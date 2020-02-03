@@ -1,0 +1,3 @@
+# Useless_Appraise
+基于Vue与Element UI的移动端友好的打分页面及展示页面
+一个没有卵用的项目
